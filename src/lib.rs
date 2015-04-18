@@ -32,6 +32,9 @@
 #![feature(core)]
 #![feature(collections)]
 
+extern crate bincode;
+extern crate rustc_serialize;
+
 pub use aspect::Aspect;
 pub use component::{Component, ComponentList};
 pub use component::{EntityBuilder, EntityModifier};
@@ -85,6 +88,7 @@ mod macros
         {
             $Name:ident;
         } => {
+            #[derive(RustcEncodable,RustcDecodable)]
             pub struct $Name;
 
             unsafe impl $crate::ComponentManager for $Name
@@ -105,6 +109,7 @@ mod macros
                 $(#[$kind:ident] $field_name:ident : $field_ty:ty),+
             }
         } => {
+            #[derive(RustcEncodable,RustcDecodable)]
             pub struct $Name {
                 $(
                     pub $field_name : $crate::ComponentList<$Name, $field_ty>,
@@ -146,6 +151,7 @@ mod macros
                 $($field_name:ident : $field_ty:ty = $field_init:expr),+
             }
         } => {
+            #[derive(RustcEncodable,RustcDecodable)]
             pub struct $Name {
                 $(
                     pub $field_name : $field_ty,

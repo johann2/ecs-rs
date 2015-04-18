@@ -6,19 +6,24 @@ use {Entity, IndexedEntity, EntityIter};
 use {EntityBuilder, EntityModifier};
 use {System};
 use entity::EntityManager;
+use rustc_serialize::{Encodable,Decodable};
 
+#[derive(RustcEncodable, RustcDecodable)]
 enum Event
 {
     BuildEntity(Entity),
     RemoveEntity(Entity),
 }
 
+#[derive(RustcEncodable, RustcDecodable)]
 pub struct World<S> where S: SystemManager
 {
     pub systems: S,
     pub data: DataHelper<S::Components, S::Services>,
 }
 
+
+#[derive(RustcEncodable, RustcDecodable)]
 pub struct DataHelper<C, M> where C: ComponentManager, M: ServiceManager
 {
     pub components: C,
@@ -27,13 +32,13 @@ pub struct DataHelper<C, M> where C: ComponentManager, M: ServiceManager
     event_queue: Vec<Event>,
 }
 
-pub unsafe trait ComponentManager: 'static
+pub unsafe trait ComponentManager: 'static+Encodable+Decodable
 {
     unsafe fn new() -> Self;
     unsafe fn remove_all(&mut self, en: &IndexedEntity<Self>);
 }
 
-pub trait ServiceManager: 'static
+pub trait ServiceManager: 'static+Encodable+Decodable
 {
     fn new() -> Self;
 }
@@ -165,3 +170,4 @@ impl<S: SystemManager> World<S>
         self.flush_queue();
     }
 }
+

@@ -12,9 +12,15 @@ repository = "https://github.com/HeroesGrave/ecs-rs"
 homepage = "https://github.com/HeroesGrave/ecs-rs"
 license = "MIT"
 readme = "README.md"
+
 keywords = [
     "ecs",
     "entity",
     "component",
     "game",
 ]
+
+
+[dependencies]
+bincode = "*"
+rustc-serialize="0.3"

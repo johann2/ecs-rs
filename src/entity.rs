@@ -12,10 +12,10 @@ use EntityData;
 
 pub type Id = u64;
 
-#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq,RustcEncodable,RustcDecodable)]
 pub struct Entity(Id);
 
-#[derive(Debug, Eq, Hash, PartialEq)]
+#[derive(Debug, Eq, Hash, PartialEq,RustcEncodable,RustcDecodable)]
 pub struct IndexedEntity<T: ComponentManager>(usize, Entity, PhantomData<fn(T)>);
 
 impl Entity
@@ -123,12 +123,34 @@ impl<'a, T: ComponentManager> Iterator for FilteredEntityIter<'a, T>
 
 /// Handles creation, activation, and validating of entities.
 #[doc(hidden)]
+
+#[derive(RustcEncodable, RustcDecodable)]
 pub struct EntityManager<T: ComponentManager>
 {
     indices: IndexPool,
     entities: HashMap<Entity, IndexedEntity<T>>,
     next_id: Id,
 }
+/*
+impl<T: ComponentManager> Encodable for EntityManager<T>
+{
+    fn encode<E:Encoder>(&self,e:&mut E) ->Result<(),Error>
+    {
+        s.emit_struct("world",1,|s|
+        {
+            data.encode
+        });
+    }
+}
+
+impl<T: ComponentManager> Decodable for EntityManager<T>
+{
+    fn decode<D: Decoder>(d: &mut D) -> Result<Self, Error>
+    {
+
+    }
+}ser
+*/
 
 impl<T: ComponentManager> EntityManager<T>
 {
@@ -155,7 +177,7 @@ impl<T: ComponentManager> EntityManager<T>
 
     pub fn indexed(&self, entity: &Entity) -> &IndexedEntity<T>
     {
-        &self.entities[*entity]
+        &self.entities[entity]
     }
 
     /// Creates a new `Entity`, assigning it the first available index.
@@ -181,6 +203,7 @@ impl<T: ComponentManager> EntityManager<T>
     }
 }
 
+#[derive(RustcEncodable,RustcDecodable)]
 struct IndexPool
 {
     recycled: Vec<usize>,

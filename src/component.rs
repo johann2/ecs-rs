@@ -8,17 +8,100 @@ use self::InnerComponentList::{Hot, Cold};
 use {BuildData, EditData, ModifyData};
 use {IndexedEntity};
 use ComponentManager;
+use rustc_serialize::{Encodable,Decodable,Encoder,Decoder};
 
-pub trait Component: 'static {}
+pub trait Component: 'static+Encodable+Decodable {}
 
-impl<T:'static> Component for T {}
+impl<T:'static+Encodable+Decodable> Component for T {}
 
+#[derive(RustcEncodable, RustcDecodable)]
 pub struct ComponentList<C: ComponentManager, T: Component>(InnerComponentList<T>, PhantomData<fn(C)>);
 
 enum InnerComponentList<T: Component>
 {
     Hot(VecMap<T>),
     Cold(HashMap<usize, T>),
+}
+
+
+impl<T: Component> Encodable for InnerComponentList<T> 
+{
+    fn encode<S: Encoder>(&self, e: &mut S) -> Result<(), S::Error> 
+    {
+        match *self
+        {
+            Cold(ref hashmap)=>
+            {
+                e.emit_enum("InnerComponentList", |e| 
+                {
+                    e.emit_enum_variant("Cold", 1, 1,|e| 
+                    {
+                        return e.emit_enum_variant_arg(0,|e|
+                        {
+                            hashmap.encode(e)
+                        });
+                    })
+                })
+
+            },
+            Hot(ref vecmap)=>
+            {
+                e.emit_enum("InnerComponentList", |e| 
+                {
+                    e.emit_enum_variant("Hot", 0, 1,|e| 
+                    {
+                        return e.emit_enum_variant_arg(0,|e|
+                        {
+                            e.emit_map(vecmap.len(), |e| 
+                            {
+                                for (i, (key, val)) in vecmap.iter().enumerate() 
+                                {
+                                    try!(e.emit_map_elt_key(i, |e| key.encode(e)));
+                                    try!(e.emit_map_elt_val(i, |e| val.encode(e)));
+                                }
+                                Ok(())
+                            })
+                        });
+                    })
+                })
+            }
+        }
+    }
+}
+
+impl<T: Component> Decodable for InnerComponentList<T>
+{
+    fn decode<D: Decoder>(d: &mut D)->Result<InnerComponentList<T>,D::Error> 
+    {
+        d.read_enum("InnerComponentList", |d| 
+        {
+            d.read_enum_variant(&["Hot", "Cold"],|d, i|
+            {
+                Ok(match i
+                {
+                    1=>InnerComponentList::Cold(
+                        try!(d.read_enum_variant_arg(0,Decodable::decode))
+                    ),
+                    0=>InnerComponentList::Hot(
+                        try!(d.read_enum_variant_arg(0,|d|
+                        {
+                            d.read_map(|d, len| 
+                            {
+                                let mut map = VecMap::new();
+                                for i in 0..len 
+                                {
+                                    let key = try!(d.read_map_elt_key(i, |d| Decodable::decode(d)));
+                                    let val = try!(d.read_map_elt_val(i, |d| Decodable::decode(d)));
+                                    map.insert(key, val);
+                                }
+                                Ok(map)
+                            })
+                        }))),
+                    _=>unreachable!(),
+                }) 
+            })
+        })
+    }
 }
 
 impl<C: ComponentManager, T: Component> ComponentList<C, T>
@@ -109,19 +192,19 @@ impl<C: ComponentManager, T: Component> ComponentList<C, T>
 impl<C: ComponentManager, T: Component, U: EditData<C>> Index<U> for ComponentList<C, T>
 {
     type Output = T;
-    fn index(&self, en: &U) -> &T
+    fn index<'a>(&'a self, en: U) -> &'a T
     {
         match self.0
         {
             Hot(ref c) => &c[en.entity().index()],
-            Cold(ref c) => &c[en.entity().index()],
+            Cold(ref c) => &c[&en.entity().index()],
         }
     }
 }
 
 impl<C: ComponentManager, T: Component, U: EditData<C>> IndexMut<U> for ComponentList<C, T>
 {
-    fn index_mut(&mut self, en: &U) -> &mut T
+    fn index_mut(&mut self, en: U) -> &mut T
     {
         match self.0
         {
