@@ -192,7 +192,7 @@ impl<C: ComponentManager, T: Component> ComponentList<C, T>
 impl<C: ComponentManager, T: Component, U: EditData<C>> Index<U> for ComponentList<C, T>
 {
     type Output = T;
-    fn index<'a>(&'a self, en: U) -> &'a T
+    fn index(&self, en: U) -> &T
     {
         match self.0
         {

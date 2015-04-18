@@ -4,6 +4,7 @@
 pub use self::entity::{EntitySystem, EntityProcess};
 pub use self::interact::{InteractSystem, InteractProcess};
 pub use self::interval::{IntervalSystem};
+pub use self::lazy::{LazySystem};
 
 use EntityData;
 use ComponentManager;
@@ -13,9 +14,10 @@ use DataHelper;
 pub mod entity;
 pub mod interact;
 pub mod interval;
+pub mod lazy;
 
 /// Generic base system type.
-pub trait System: 'static
+pub trait System
 {
     type Components: ComponentManager;
     type Services: ServiceManager;

@@ -45,7 +45,7 @@ pub trait ServiceManager: 'static+Encodable+Decodable
 
 impl ServiceManager for () { fn new(){} }
 
-pub unsafe trait SystemManager: 'static
+pub unsafe trait SystemManager
 {
     type Components: ComponentManager;
     type Services: ServiceManager;
