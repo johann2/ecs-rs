@@ -10,6 +10,7 @@ use {Entity, IndexedEntity};
 use EntityData;
 use EntityIter;
 use {System, Process};
+use rustc_serialize::{Decoder,Decodable,Encoder,Encodable};
 
 pub trait EntityProcess: System
 {

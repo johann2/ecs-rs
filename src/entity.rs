@@ -131,26 +131,6 @@ pub struct EntityManager<T: ComponentManager>
     entities: HashMap<Entity, IndexedEntity<T>>,
     next_id: Id,
 }
-/*
-impl<T: ComponentManager> Encodable for EntityManager<T>
-{
-    fn encode<E:Encoder>(&self,e:&mut E) ->Result<(),Error>
-    {
-        s.emit_struct("world",1,|s|
-        {
-            data.encode
-        });
-    }
-}
-
-impl<T: ComponentManager> Decodable for EntityManager<T>
-{
-    fn decode<D: Decoder>(d: &mut D) -> Result<Self, Error>
-    {
-
-    }
-}ser
-*/
 
 impl<T: ComponentManager> EntityManager<T>
 {

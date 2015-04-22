@@ -6,7 +6,7 @@ use {Entity, IndexedEntity, EntityIter};
 use {EntityBuilder, EntityModifier};
 use {System};
 use entity::EntityManager;
-use rustc_serialize::{Encodable,Decodable};
+use rustc_serialize::{Encodable,Decodable,Encoder,Decoder};
 
 #[derive(RustcEncodable, RustcDecodable)]
 enum Event
@@ -15,13 +15,48 @@ enum Event
     RemoveEntity(Entity),
 }
 
-#[derive(RustcEncodable, RustcDecodable)]
+//#[derive(RustcEncodable, RustcDecodable)]
 pub struct World<S> where S: SystemManager
 {
     pub systems: S,
     pub data: DataHelper<S::Components, S::Services>,
 }
 
+impl<S:SystemManager> Encodable for World<S>
+{
+    fn encode<E:Encoder>(&self,encoder: &mut E)-> Result<(),E::Error> 
+    {
+        encoder.emit_struct("World", 1usize, |encoder| -> _ 
+        {
+            try!(encoder.emit_struct_field( "data",0, |encoder| self.data.encode(encoder)));
+            Ok(())
+        })
+    }
+}
+
+
+impl<S:SystemManager> Decodable for World<S>
+{
+    fn decode<D: Decoder>(d: &mut D)->Result<World<S>,D::Error> 
+    {
+        let mut tmp=try!(d.read_struct("World", 1usize, |d| -> _ 
+        {
+            Ok(World
+            {
+                data: try!(d.read_struct_field("data", 0, |d| Decodable::decode(d))),
+                systems:unsafe{S::new()}
+            })
+        }));
+        let mut systems=unsafe{S::new()};
+//        let components=tmp.components.clone();
+        for e in tmp.data.entities.iter()
+        {
+            unsafe{systems.activated(e,&tmp.components); }
+        }
+        tmp.systems=systems;
+        Ok(tmp)
+    }
+}
 
 #[derive(RustcEncodable, RustcDecodable)]
 pub struct DataHelper<C, M> where C: ComponentManager, M: ServiceManager

@@ -189,6 +189,30 @@ mod macros
         } => {
             pub struct $Name;
 
+            impl Encodable for $Name 
+            {
+                fn encode<S:Encoder>(&self,encoder: &mut S)-> Result<(),S::Error> 
+                {
+                    Ok(())
+                }
+            }
+            
+            
+            impl Decodable for $Name 
+            {
+                fn decode<D: Decoder>(d: &mut D)->Result<$Name,D::Error> 
+                {
+                    Ok(
+                    $Name 
+                    {
+                        $(
+                            $field_name : $field_init,
+                        )+
+                    }
+                    )
+                }
+            }
+
             unsafe impl $crate::SystemManager for $Name
             {
                 type Components = $components;
@@ -229,6 +253,30 @@ mod macros
                 $(
                     pub $field_name : $field_ty,
                 )+
+            }
+
+            impl Encodable for $Name 
+            {
+                fn encode<S:Encoder>(&self,encoder: &mut S)-> Result<(),S::Error> 
+                {
+                    Ok(())
+                }
+            }
+            
+            
+            impl Decodable for $Name 
+            {
+                fn decode<D: Decoder>(d: &mut D)->Result<$Name,D::Error> 
+                {
+                    Ok(
+                    $Name 
+                    {
+                        $(
+                            $field_name : $field_init,
+                        )+
+                    }
+                    )
+                }
             }
 
             unsafe impl $crate::SystemManager for $Name
