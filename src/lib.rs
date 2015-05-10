@@ -30,6 +30,7 @@
 #![crate_type = "lib"]
 
 #![feature(collections)]
+#![feature(collections_drain)]
 
 extern crate bincode;
 extern crate rustc_serialize;
@@ -41,7 +42,7 @@ pub use entity::{Entity, IndexedEntity, EntityIter};
 pub use system::{System, Process};
 pub use world::{ComponentManager, ServiceManager, SystemManager, DataHelper, World};
 
-use std::ops::{Deref};
+use std::ops::Deref;
 
 pub mod aspect;
 pub mod component;

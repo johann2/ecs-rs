@@ -181,7 +181,7 @@ impl<S: SystemManager> World<S>
 
     fn flush_queue(&mut self)
     {
-        for e in self.data.event_queue.drain() {
+        for e in self.data.event_queue.drain(..) {
             match e {
                 Event::BuildEntity(entity) => {
                     unsafe { self.systems.activated(EntityData(self.data.entities.indexed(&entity)), &mut self.data.components); }
