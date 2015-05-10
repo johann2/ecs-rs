@@ -192,7 +192,7 @@ mod macros
 
             impl Encodable for $Name 
             {
-                fn encode<S:Encoder>(&self,encoder: &mut S)-> Result<(),S::Error> 
+                fn encode<S:Encoder>(&self,_: &mut S)-> Result<(),S::Error> 
                 {
                     Ok(())
                 }
@@ -201,7 +201,7 @@ mod macros
             
             impl Decodable for $Name 
             {
-                fn decode<D: Decoder>(d: &mut D)->Result<$Name,D::Error> 
+                fn decode<D: Decoder>(_: &mut D)->Result<$Name,D::Error> 
                 {
                     Ok(
                     $Name 
@@ -244,7 +244,7 @@ mod macros
 
                 }
             }
-        };
+        }; 
         {
             $Name:ident<$components:ty, $services:ty> {
                 $($field_name:ident : $field_ty:ty = $field_init:expr),+
@@ -258,7 +258,7 @@ mod macros
 
             impl Encodable for $Name 
             {
-                fn encode<S:Encoder>(&self,encoder: &mut S)-> Result<(),S::Error> 
+                fn encode<S:Encoder>(&self,_: &mut S)-> Result<(),S::Error> 
                 {
                     Ok(())
                 }
@@ -267,7 +267,7 @@ mod macros
             
             impl Decodable for $Name 
             {
-                fn decode<D: Decoder>(d: &mut D)->Result<$Name,D::Error> 
+                fn decode<D: Decoder>(_: &mut D)->Result<$Name,D::Error> 
                 {
                     Ok(
                     $Name 
