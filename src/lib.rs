@@ -31,7 +31,8 @@
 
 #![feature(collections)]
 #![feature(collections_drain)]
-
+#![feature(vecmap)]
+#![feature(drain)]
 extern crate bincode;
 extern crate rustc_serialize;
 
